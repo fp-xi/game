@@ -1,7 +1,7 @@
 package server;
 
 import handler.ServerHandler;
-import handler.TestHandler;
+import handler.InitHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -46,7 +46,7 @@ public class Server {
                                     .addLast(new LengthFieldPrepender(2))
                                     .addLast(new StringEncoder(UTF_8))
                                     .addLast(new ServerHandler())
-                                    .addLast(new TestHandler());
+                                    .addLast(new InitHandler());
                         }
                     }).childOption(ChannelOption.TCP_NODELAY, true);
             future = bootstrap.bind(18080).sync();

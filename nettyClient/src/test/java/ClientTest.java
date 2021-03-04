@@ -1,18 +1,21 @@
 import client.Client;
-import org.apache.commons.lang3.RandomStringUtils;
+
+import java.util.Scanner;
 
 public class ClientTest {
 
     public static void main(String[] args) {
         Client nettyClient = new Client();
-        nettyClient.start();
 
         try {
-            for (int i = 0; i < 5; i++) {
-                Thread.sleep(2000);
-                String response = nettyClient.send(RandomStringUtils.random(32, true, true));
-                System.out.println("response:" + response);
+            nettyClient.start();
+            Scanner scanner = new Scanner(System.in);
+            while(scanner.hasNext()) {
+                String text = scanner.nextLine();
+                nettyClient.send(text);
             }
+
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
