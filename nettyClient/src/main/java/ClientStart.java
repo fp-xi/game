@@ -2,7 +2,7 @@ import client.Client;
 
 import java.util.Scanner;
 
-public class ClientTest {
+public class ClientStart {
 
     public static void main(String[] args) {
         Client nettyClient = new Client();

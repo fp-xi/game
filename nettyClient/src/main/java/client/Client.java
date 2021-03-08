@@ -53,7 +53,8 @@ public class Client {
                         }
                     });
             //keep the connection with server，and blocking until closed!
-            future = bootstrap.connect(new InetSocketAddress("127.0.0.1", 18080)).sync();
+            future = bootstrap.connect(new InetSocketAddress("121.4.70.234", 18080)).sync();
+            //future = bootstrap.connect(new InetSocketAddress("127.0.0.1", 18080)).sync();
             init = true;
         } catch (Exception e) {
             isClosed = true;

@@ -10,13 +10,11 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         //当channel就绪后。
-        System.out.println("client channel is ready!");
-        //ctx.writeAndFlush("started");//阻塞知道发送完毕
     }
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, String message) throws Exception {
-        System.out.println(message);
+        System.out.println("server>>>"+message);
     }
 
 
