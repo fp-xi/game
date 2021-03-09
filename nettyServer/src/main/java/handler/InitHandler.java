@@ -25,9 +25,6 @@ public class InitHandler extends ChannelInitializer {
             } else {
                 customChannel.setName("noName");
             }
-            if(ServerResource.currentClient.isEmpty()) {
-                ServerResource.host = clientIp;
-            }
             ServerResource.login(clientIp, customChannel);
 
         }

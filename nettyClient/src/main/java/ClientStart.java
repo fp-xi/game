@@ -9,9 +9,9 @@ public class ClientStart {
         System.out.println("**** Hello I want to play a game!****");
         System.out.println("******** Input start to play! *******");
         System.out.println("***** Input c for landlord **********");
-        System.out.println("********* for give up ***************");
+        System.out.println("******** w for give up ***************");
         System.out.println("********** p for pass ***************");
-        System.out.println("********* c: for chat ***************");
+        System.out.println("********* : for chat ****************");
         System.out.println("*************************************");
         try {
             nettyClient.start();
@@ -20,8 +20,6 @@ public class ClientStart {
                 String text = scanner.nextLine();
                 nettyClient.send(text);
             }
-
-
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

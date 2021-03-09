@@ -6,7 +6,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import resource.ServerResource;
 
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.util.Arrays;
 
 public class ServerHandler extends SimpleChannelInboundHandler<String> {
@@ -18,16 +17,35 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
         if(customChannel == null) {
             ctx.writeAndFlush("You have not registered,please contact system administrator!",ctx.channel().voidPromise());
         }else {
-            if(message.startsWith(":") || message.startsWith("：")){
-                String me = message.substring(1,message.length());
+            if("list".equals(message.toLowerCase())) {
+                StringBuffer sb = new StringBuffer();
+                sb.append("current online:").append("\r\n");
+                ServerResource.currentClient.forEach((key,value) -> {
+                    sb.append(key).append(":").append(value.getName()).append("\r\n");
+                });
+                serverMessage(ctx,sb.toString(),customChannel);
+            } else if(message.toLowerCase().startsWith("kick:")){
+                String[] s = message.split(":");
+                if(s.length == 2) {
+                    serverMessageToAll(ctx, ServerResource.currentClient.get(s[1]).getName() + " has been kicked");
+                    ServerResource.logout(s[1]);
+                }
+            }else if(message.startsWith(":") || message.startsWith("：")){
+                String me = message.substring(1);
                 sendMessageToAll(ctx, me, customChannel);
             } else {
                 String ip = ((InetSocketAddress)(ctx.channel().remoteAddress())).getAddress().getHostAddress();
                 if("running".equals(ServerResource.status)) {
                     if("l".equals(message.toLowerCase())) {
                         StringBuffer sb = new StringBuffer();
+                        sb.append("landlord is ").append(ServerResource.currentClient.get(ServerResource.host).getName()).append("\r\n");
+                        ServerResource.currentClient.forEach((key,value) -> {
+                            sb.append(value.getName()).append(" left ").append(value.getPokers().size()).append(" cards,");
+                        });
+                        sb.append("\r\n");
+                        sb.append("current pokers:");
                         customChannel.getPokers().stream().sorted().forEach(item ->sb.append(item).append(","));
-                        serverMessage(ctx,"current pokers:"+sb.substring(0,sb.length()-1), customChannel);
+                        serverMessage(ctx,sb.substring(0,sb.length()-1), customChannel);
                     } else if("p".equals(message.toLowerCase()) && ip.equals(ServerResource.current)){
                         ServerResource.current = ServerResource.getNext(ip);
                         serverMessageToAll(ctx,customChannel.getName()+ " pass,next " + ServerResource.currentClient.get(ServerResource.current).getName()+"\r\n");
@@ -37,13 +55,21 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
                             if("win".equals(result)) {
                                 StringBuffer s = new StringBuffer();
                                 Arrays.asList(message.split(",")).stream().sorted().forEach(item -> s.append(item).append(","));
-                                serverMessageToAll(ctx, customChannel.getName()+"->"+ s.toString());
+                                serverMessageToAll(ctx, customChannel.getName()+"------>"+ s.toString());
+                                StringBuffer finalS = new StringBuffer();
+                                finalS.append("\r\n");
+                                ServerResource.currentClient.forEach((key, value) -> {
+                                    finalS.append(value.getName()).append(" left :");
+                                    value.getPokers().stream().sorted().forEach(item -> finalS.append(item).append(","));
+                                    finalS.append("\r\n");
+                                });
+                                serverMessageToAll(ctx, finalS.toString());
                                 serverMessageToAll(ctx,customChannel.getName() + " win!");
                                 ServerResource.status = "undo";
                             } else if("success".equals(result)){
                                 StringBuffer s = new StringBuffer();
                                 Arrays.asList(message.split(",")).stream().sorted().forEach(item -> s.append(item).append(","));
-                                serverMessageToAll(ctx, customChannel.getName()+"->"+ s.toString());
+                                serverMessageToAll(ctx, customChannel.getName()+"------>"+ s.toString());
                                 ServerResource.current = ServerResource.getNext(ip);
                                 serverMessageToAll(ctx, "next "+ ServerResource.currentClient.get(ServerResource.current).getName());
                             } else {
@@ -62,6 +88,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
                     }else if("c".equals(message.toLowerCase()) && ip.equals(ServerResource.current)) {
                         ServerResource.times = 0;
                         ServerResource.status = "running";
+                        ServerResource.host = ip;
                         StringBuffer s = new StringBuffer();
                         ServerResource.leftPokers.forEach(item -> s.append(item).append(","));
                         serverMessageToAll(ctx, "landlord is " + customChannel.getName());
