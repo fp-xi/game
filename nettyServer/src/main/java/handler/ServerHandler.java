@@ -13,11 +13,16 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
     public void channelRead0(ChannelHandlerContext ctx, String message) throws Exception {
         System.out.println("from client:" + message);
         CustomChannel customChannel = ServerResource.getCustom(ctx.channel());
+        String ip = ((InetSocketAddress)(ctx.channel().remoteAddress())).getAddress().getHostAddress();
         //判断用户是否注册
         if(customChannel == null) {
             ctx.writeAndFlush("You have not registered,please contact system administrator!",ctx.channel().voidPromise());
         }else {
-            if("list".equals(message.toLowerCase())) {
+            if("exit".equals(message.toLowerCase())){
+                ServerResource.loop.remove(ip);
+            } else if("join".equals(message.toLowerCase())){
+                ServerResource.loop.add(ip);
+            } else if("list".equals(message.toLowerCase())) {
                 StringBuffer sb = new StringBuffer();
                 sb.append("current online:").append("\r\n");
                 ServerResource.currentClient.forEach((key,value) -> {
@@ -34,7 +39,6 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
                 String me = message.substring(1);
                 sendMessageToAll(ctx, me, customChannel);
             } else {
-                String ip = ((InetSocketAddress)(ctx.channel().remoteAddress())).getAddress().getHostAddress();
                 if("running".equals(ServerResource.status)) {
                     if("l".equals(message.toLowerCase())) {
                         StringBuffer sb = new StringBuffer();

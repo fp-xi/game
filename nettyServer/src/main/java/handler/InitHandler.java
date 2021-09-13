@@ -3,7 +3,10 @@ package handler;
 import custom.CustomChannel;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
+import org.apache.commons.lang3.StringUtils;
+import redis.clients.jedis.Jedis;
 import resource.ServerResource;
+import util.JedisUtil;
 
 import java.net.InetSocketAddress;
 
@@ -14,19 +17,16 @@ public class InitHandler extends ChannelInitializer {
         System.out.println(clientIp);
 
         if(ServerResource.currentClient.get(clientIp) == null) {
-            CustomChannel customChannel = new CustomChannel();
-            customChannel.setChannel(channel);
-            if("58.213.224.243".equals(clientIp)) {
-                customChannel.setName("fp");
-            } else if("58.221.161.26".equals(clientIp)){
-                customChannel.setName("ck");
-            } else if("58.212.164.77".equals(clientIp)){
-                customChannel.setName("Lit");
-            } else {
-                customChannel.setName("noName");
-            }
-            ServerResource.login(clientIp, customChannel);
+            Jedis jedis = JedisUtil.getJedis();
+            String userName = jedis.get(clientIp);
+            if(StringUtils.isNotBlank(userName) && !"null".equals(userName)) {
+                CustomChannel customChannel = new CustomChannel();
+                customChannel.setChannel(channel);
+                customChannel.setName(userName);
+                ServerResource.login(clientIp, customChannel);
 
+            }
+            JedisUtil.close(jedis);
         }
     }
 }

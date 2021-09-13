@@ -13,6 +13,8 @@ public class ClientStart {
         System.out.println("********** p for pass ***************");
         System.out.println("********* : for chat ****************");
         System.out.println("*************************************");
+        System.out.println("\033[31;4mRed Underline Text\033[0m");
+
         try {
             nettyClient.start();
             Scanner scanner = new Scanner(System.in);
